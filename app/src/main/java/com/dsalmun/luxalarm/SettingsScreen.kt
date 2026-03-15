@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,12 +94,12 @@ fun SettingsScreen(onBackClick: () -> Unit) {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back_24px),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 },
@@ -139,14 +140,14 @@ private fun LuxLevelSetting(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Required Light Level",
+                text = stringResource(R.string.required_light_level),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "The minimum light level (in lux) required to turn off the alarm.",
+                text = stringResource(R.string.required_light_level_description),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             )
@@ -168,12 +169,12 @@ private fun LuxLevelSetting(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Current Light Level",
+                        text = stringResource(R.string.current_light_level),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "${currentLightLevel.toInt()} lux",
+                        text = stringResource(R.string.lux_value, currentLightLevel.toInt()),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color =
@@ -210,7 +211,7 @@ private fun LuxLevelSetting(
 
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "${currentValue.toInt()} lux",
+                    text = stringResource(R.string.lux_value, currentValue.toInt()),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -221,8 +222,8 @@ private fun LuxLevelSetting(
 
             Text(
                 text =
-                    if (meetsThreshold) "✓ Current light level meets threshold"
-                    else "Current light is below threshold",
+                    if (meetsThreshold) stringResource(R.string.current_light_level_meets_threshold)
+                    else stringResource(R.string.current_light_below_threshold),
                 fontSize = 12.sp,
                 color =
                     if (meetsThreshold) MaterialTheme.colorScheme.primary

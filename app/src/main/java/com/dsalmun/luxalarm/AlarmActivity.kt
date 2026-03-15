@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -149,7 +150,7 @@ fun AlarmRingingScreen(
     val currentDate = remember {
         SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault()).format(Date())
     }
-    val greeting = remember { getTimeBasedGreeting() }
+    val greeting = getTimeBasedGreeting()
 
     val gradientColors =
         listOf(
@@ -235,28 +236,28 @@ private fun LightSensorIndicator(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Light Level",
+                text = stringResource(R.string.light_level),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.7f),
             )
             Text(
-                text = "${currentLightLevel.toInt()} lx",
+                text = stringResource(R.string.lx_value, currentLightLevel.toInt()),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isButtonEnabled) Color(0xFF10B981) else Color.White,
             )
             Text(
                 text =
-                    if (isButtonEnabled) "Bright enough!"
-                    else "Need ${requiredLightLevel.toInt()} lx minimum",
+                    if (isButtonEnabled) stringResource(R.string.bright_enough)
+                    else stringResource(R.string.need_lx_minimum, requiredLightLevel.toInt()),
                 fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
             )
             if (!isButtonEnabled) {
                 Text(
-                    text = "Go to a brighter area to turn off alarm",
+                    text = stringResource(R.string.go_to_brighter_area),
                     fontSize = 12.sp,
                     color = Color.White.copy(alpha = 0.8f),
                     textAlign = TextAlign.Center,
@@ -292,21 +293,24 @@ private fun AlarmControlButton(isButtonEnabled: Boolean, onStopAlarm: () -> Unit
             ),
     ) {
         Text(
-            text = if (isButtonEnabled) "Turn Off Alarm" else "Need More Light",
+            text =
+                if (isButtonEnabled) stringResource(R.string.turn_off_alarm)
+                else stringResource(R.string.need_more_light),
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
         )
     }
 }
 
+@Composable
 private fun getTimeBasedGreeting(): String {
     val calendar = Calendar.getInstance()
     val hour = calendar[Calendar.HOUR_OF_DAY]
 
     return when (hour) {
-        in 5..11 -> "Good Morning"
-        in 12..17 -> "Good Afternoon"
-        in 18..21 -> "Good Evening"
-        else -> "Time to Wake Up" // Late night/early morning (22-4)
+        in 5..11 -> stringResource(R.string.good_morning)
+        in 12..17 -> stringResource(R.string.good_afternoon)
+        in 18..21 -> stringResource(R.string.good_evening)
+        else -> stringResource(R.string.time_to_wake_up)
     }
 }

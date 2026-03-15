@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ fun AlarmScreen(
     val alarms by alarmViewModel.alarms.collectAsState()
     var showTimePickerDialog by remember { mutableStateOf(false) }
     var alarmToEdit by remember { mutableStateOf<AlarmItem?>(null) }
+    var alarmPendingDelete by remember { mutableStateOf<AlarmItem?>(null) }
     var expandedAlarmId by remember { mutableStateOf<Int?>(null) }
     var alarmIdForRingtonePicker by remember { mutableStateOf<Int?>(null) }
 
@@ -93,7 +95,7 @@ fun AlarmScreen(
                 is AlarmViewModel.Event.ShowPermissionError -> {
                     Toast.makeText(
                             context,
-                            "Cannot schedule exact alarms. Please grant permission in settings.",
+                            context.getString(R.string.cannot_schedule_exact_alarms),
                             Toast.LENGTH_SHORT,
                         )
                         .show()
@@ -128,18 +130,18 @@ fun AlarmScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.add_24px),
-                    contentDescription = "Add Alarm",
+                    contentDescription = stringResource(R.string.add_alarm),
                 )
             }
         },
         topBar = {
             TopAppBar(
-                title = { Text("Lux Alarm") },
+                title = { Text(stringResource(R.string.alarm_screen_title)) },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             painter = painterResource(R.drawable.settings_24px),
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.settings),
                         )
                     }
                 },
@@ -157,7 +159,7 @@ fun AlarmScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "No alarms set. Tap '+' to add one.",
+                    text = stringResource(R.string.no_alarms_set),
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
@@ -207,17 +209,12 @@ fun AlarmScreen(
                                     )
                                     putExtra(
                                         RingtoneManager.EXTRA_RINGTONE_TITLE,
-                                        "Select ringtone",
+                                        context.getString(R.string.select_ringtone),
                                     )
                                 }
                             ringtonePickerLauncher.launch(pickerIntent)
                         },
-                        onDeleteClick = {
-                            if (expandedAlarmId == alarm.id) {
-                                expandedAlarmId = null
-                            }
-                            alarmViewModel.deleteAlarm(alarm.id)
-                        },
+                        onDeleteClick = { alarmPendingDelete = alarm },
                     )
                 }
             }
@@ -246,6 +243,20 @@ fun AlarmScreen(
             timePickerState = timePickerState,
         )
     }
+
+    alarmPendingDelete?.let { alarm ->
+        ConfirmDeleteAlarmDialog(
+            alarm = alarm,
+            onDismiss = { alarmPendingDelete = null },
+            onConfirm = {
+                if (expandedAlarmId == alarm.id) {
+                    expandedAlarmId = null
+                }
+                alarmViewModel.deleteAlarm(alarm.id)
+                alarmPendingDelete = null
+            },
+        )
+    }
 }
 
 @Composable
@@ -260,6 +271,7 @@ fun AlarmRow(
     onRingtoneClick: () -> Unit,
     onDeleteClick: () -> Unit,
 ) {
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -281,14 +293,16 @@ fun AlarmRow(
                                 if (expanded) R.drawable.keyboard_arrow_up_24px
                                 else R.drawable.keyboard_arrow_down_24px
                             ),
-                        contentDescription = if (expanded) "Collapse" else "Expand",
+                        contentDescription =
+                            if (expanded) stringResource(R.string.collapse)
+                            else stringResource(R.string.expand),
                     )
                     Switch(checked = alarm.isActive, onCheckedChange = onToggle)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = formatRepeatDays(alarm.repeatDays, alarm.hour, alarm.minute),
+                text = formatRepeatDays(context, alarm.repeatDays, alarm.hour, alarm.minute),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -315,7 +329,7 @@ fun AlarmRow(
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         painter = painterResource(R.drawable.notifications_active_24px),
-                        contentDescription = "Ringtone",
+                        contentDescription = stringResource(R.string.ringtone),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.width(14.dp))
@@ -332,11 +346,15 @@ fun AlarmRow(
                     TextButton(onClick = onDeleteClick) {
                         Icon(
                             painter = painterResource(R.drawable.delete_24px),
-                            contentDescription = "Delete alarm",
+                            contentDescription =
+                                stringResource(R.string.delete_alarm_content_description),
                             tint = MaterialTheme.colorScheme.error,
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                        Text(
+                            stringResource(R.string.delete),
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
                 }
             }
@@ -348,13 +366,13 @@ fun AlarmRow(
 fun DaySelector(selectedDays: Set<Int>, onDayClick: (Int) -> Unit) {
     val days =
         listOf(
-            "S" to Calendar.SUNDAY,
-            "M" to Calendar.MONDAY,
-            "T" to Calendar.TUESDAY,
-            "W" to Calendar.WEDNESDAY,
-            "T" to Calendar.THURSDAY,
-            "F" to Calendar.FRIDAY,
-            "S" to Calendar.SATURDAY,
+            "Su" to Calendar.SUNDAY,
+            "Mo" to Calendar.MONDAY,
+            "Tu" to Calendar.TUESDAY,
+            "We" to Calendar.WEDNESDAY,
+            "Th" to Calendar.THURSDAY,
+            "Fr" to Calendar.FRIDAY,
+            "Sa" to Calendar.SATURDAY,
         )
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
@@ -384,7 +402,7 @@ fun DaySelector(selectedDays: Set<Int>, onDayClick: (Int) -> Unit) {
     }
 }
 
-fun formatRepeatDays(days: Set<Int>, hour: Int, minute: Int): String {
+fun formatRepeatDays(appContext: Context, days: Set<Int>, hour: Int, minute: Int): String {
     if (days.isEmpty()) {
         val now = Calendar.getInstance()
         val alarmTime =
@@ -394,9 +412,10 @@ fun formatRepeatDays(days: Set<Int>, hour: Int, minute: Int): String {
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }
-        return if (alarmTime.after(now)) "Today" else "Tomorrow"
+        return if (alarmTime.after(now)) appContext.getString(R.string.today)
+        else appContext.getString(R.string.tomorrow)
     }
-    if (days.size == 7) return "Every day"
+    if (days.size == 7) return appContext.getString(R.string.every_day)
 
     val sortedDays = days.toSortedSet()
     val dayNames =
@@ -419,7 +438,8 @@ private fun getRingtoneDisplayName(context: Context, ringtoneUri: String?): Stri
     val uri =
         if (ringtoneUri.isNullOrBlank()) RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         else ringtoneUri.toUri()
-    return RingtoneManager.getRingtone(context, uri)?.getTitle(context) ?: "Unknown"
+    return RingtoneManager.getRingtone(context, uri)?.getTitle(context)
+        ?: context.getString(R.string.unknown_ringtone)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -431,14 +451,44 @@ fun TimePickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Set Alarm Time") },
+        title = { Text(stringResource(R.string.set_alarm_time)) },
         text = {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 TimePicker(state = timePickerState)
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Set") } },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(R.string.set)) } },
+    )
+}
+
+@Composable
+private fun ConfirmDeleteAlarmDialog(
+    alarm: AlarmItem,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_alarm_title)) },
+        text = {
+            Text(
+                stringResource(
+                    R.string.delete_alarm_message,
+                    String.format(Locale.getDefault(), "%02d:%02d", alarm.hour, alarm.minute),
+                )
+            )
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+            }
+        },
     )
 }
 
@@ -459,75 +509,25 @@ private fun showSetAlarmToast(
 
     val timeParts = mutableListOf<String>()
     if (days > 0) {
-        timeParts.add("$days ${if (days == 1) "day" else "days"}")
+        timeParts.add(
+            "$days ${if (days == 1) context.getString(R.string.day_singular) else context.getString(R.string.day_plural)}"
+        )
     }
     if (hours > 0) {
-        timeParts.add("$hours ${if (hours == 1) "hour" else "hours"}")
+        timeParts.add(
+            "$hours ${if (hours == 1) context.getString(R.string.hour_singular) else context.getString(R.string.hour_plural)}"
+        )
     }
     if (minutes > 0) {
-        timeParts.add("$minutes ${if (minutes == 1) "minute" else "minutes"}")
+        timeParts.add(
+            "$minutes ${if (minutes == 1) context.getString(R.string.minute_singular) else context.getString(R.string.minute_plural)}"
+        )
     }
     if (timeParts.isEmpty()) {
-        timeParts.add("less than a minute")
+        timeParts.add(context.getString(R.string.less_than_a_minute))
     }
 
-    val toastMessage = "Alarm set for ${timeParts.joinToString(", ")} from now."
+    val toastMessage =
+        context.getString(R.string.alarm_set_for_from_now, timeParts.joinToString(", "))
     Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
-}
-
-private fun calculateNextTrigger(hour: Int, minute: Int, repeatDays: Set<Int>): Long {
-    val now = Calendar.getInstance()
-    val alarmTime =
-        Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-    if (repeatDays.isEmpty()) {
-        if (alarmTime.before(now)) {
-            alarmTime.add(Calendar.DAY_OF_MONTH, 1) // schedule for next day if time has passed
-        }
-        return alarmTime.timeInMillis
-    }
-
-    // Find the next valid trigger time
-    for (i in 0 until 7) {
-        val potentialNextDay = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, i) }
-        val dayOfWeek = potentialNextDay[Calendar.DAY_OF_WEEK]
-
-        if (dayOfWeek in repeatDays) {
-            val triggerTime =
-                Calendar.getInstance().apply {
-                    time = potentialNextDay.time
-                    set(Calendar.HOUR_OF_DAY, hour)
-                    set(Calendar.MINUTE, minute)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-            if (triggerTime.after(now)) {
-                return triggerTime.timeInMillis
-            }
-        }
-    }
-
-    // If no time was found, it means the next alarm is next week. Find the first day of the week.
-    var firstDayOfWeek = 8
-    for (day in repeatDays) {
-        if (day < firstDayOfWeek) {
-            firstDayOfWeek = day
-        }
-    }
-
-    val nextWeekAlarm =
-        Calendar.getInstance().apply {
-            add(Calendar.WEEK_OF_YEAR, 1)
-            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-    return nextWeekAlarm.timeInMillis
 }

@@ -21,6 +21,7 @@ output-metadata.json
 # IntelliJ
 *.iml
 .idea/
+.kotlin/
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml

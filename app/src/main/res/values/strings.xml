@@ -1,3 +1,62 @@
 <resources>
     <string name="app_name">Lux Alarm</string>
+
+    <string name="notification_permission_denied_title">Notifications disabled</string>
+    <string name="notification_permission_denied_message">Lux Alarm can still create alarms, but without notification permission alarm alerts may be less visible. You can enable notifications in app settings.</string>
+    <string name="exact_alarm_permission_denied_title">Exact alarm permission needed</string>
+    <string name="exact_alarm_permission_denied_message">Lux Alarm needs exact alarm permission so alarms can ring on time. Please allow it in system settings.</string>
+    <string name="permission_dialog_open_settings">Open settings</string>
+    <string name="permission_dialog_not_now">Not now</string>
+
+    <string name="alarm_screen_title">Lux Alarm</string>
+    <string name="add_alarm">Add alarm</string>
+    <string name="settings">Settings</string>
+    <string name="no_alarms_set">No alarms set. Tap the add button to create one.</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="delete_alarm_content_description">Delete alarm</string>
+    <string name="delete">Delete</string>
+    <string name="set_alarm_time">Set alarm time</string>
+    <string name="cancel">Cancel</string>
+    <string name="set">Set</string>
+    <string name="delete_alarm_title">Delete alarm?</string>
+    <string name="delete_alarm_message">Delete the %1$s alarm? This can be recreated later, but it cannot be undone from this screen.</string>
+    <string name="cannot_schedule_exact_alarms">Cannot schedule exact alarms. Please grant permission in settings.</string>
+    <string name="alarm_set_for_from_now">Alarm set for %1$s from now.</string>
+    <string name="less_than_a_minute">less than a minute</string>
+    <string name="day_singular">day</string>
+    <string name="day_plural">days</string>
+    <string name="hour_singular">hour</string>
+    <string name="hour_plural">hours</string>
+    <string name="minute_singular">minute</string>
+    <string name="minute_plural">minutes</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="every_day">Every day</string>
+    <string name="select_ringtone">Select ringtone</string>
+    <string name="unknown_ringtone">Unknown</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+
+    <string name="back">Back</string>
+    <string name="required_light_level">Required light level</string>
+    <string name="required_light_level_description">The minimum light level (in lux) required to turn off the alarm.</string>
+    <string name="current_light_level">Current light level</string>
+    <string name="lux_value">%1$d lux</string>
+    <string name="current_light_level_meets_threshold">Current light level meets threshold</string>
+    <string name="current_light_below_threshold">Current light is below threshold</string>
+
+    <string name="alarm_ringing_title">Alarm Ringing</string>
+    <string name="tap_to_open_alarm_screen">Tap to open alarm screen</string>
+
+    <string name="light_level">Light Level</string>
+    <string name="lx_value">%1$d lx</string>
+    <string name="bright_enough">Bright enough!</string>
+    <string name="need_lx_minimum">Need %1$d lx minimum</string>
+    <string name="go_to_brighter_area">Go to a brighter area to turn off alarm</string>
+    <string name="turn_off_alarm">Turn Off Alarm</string>
+    <string name="need_more_light">Need More Light</string>
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_evening">Good Evening</string>
+    <string name="time_to_wake_up">Time to Wake Up</string>
 </resources>

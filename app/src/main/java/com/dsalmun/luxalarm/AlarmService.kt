@@ -219,8 +219,8 @@ class AlarmService : Service() {
 
         return NotificationCompat.Builder(this, ALARM_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("Alarm Ringing")
-            .setContentText("Tap to open alarm screen")
+            .setContentTitle(getString(R.string.alarm_ringing_title))
+            .setContentText(getString(R.string.tap_to_open_alarm_screen))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setFullScreenIntent(fullScreenPendingIntent, true)
