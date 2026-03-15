@@ -212,6 +212,12 @@ fun AlarmScreen(
                                 }
                             ringtonePickerLauncher.launch(pickerIntent)
                         },
+                        onDeleteClick = {
+                            if (expandedAlarmId == alarm.id) {
+                                expandedAlarmId = null
+                            }
+                            alarmViewModel.deleteAlarm(alarm.id)
+                        },
                     )
                 }
             }
@@ -237,14 +243,6 @@ fun AlarmScreen(
                 showTimePickerDialog = false
                 alarmToEdit = null
             },
-            onDelete =
-                if (alarmToEdit != null) {
-                    {
-                        alarmViewModel.deleteAlarm(alarmToEdit!!.id)
-                        showTimePickerDialog = false
-                        alarmToEdit = null
-                    }
-                } else null,
             timePickerState = timePickerState,
         )
     }
@@ -260,6 +258,7 @@ fun AlarmRow(
     onTimeClick: () -> Unit,
     onRepeatDaysChange: (Set<Int>) -> Unit,
     onRingtoneClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -326,6 +325,19 @@ fun AlarmRow(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable(onClick = onRingtoneClick),
                     )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDeleteClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.delete_24px),
+                            contentDescription = "Delete alarm",
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
                 }
             }
         }
@@ -416,7 +428,6 @@ fun TimePickerDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     timePickerState: TimePickerState,
-    onDelete: (() -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -426,23 +437,8 @@ fun TimePickerDialog(
                 TimePicker(state = timePickerState)
             }
         },
-        dismissButton = {
-            if (onDelete != null) {
-                TextButton(onClick = onDelete) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
-            }
-        },
-        confirmButton = {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(onClick = onConfirm) { Text("Set") }
-            }
-        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text("Set") } },
     )
 }
 
