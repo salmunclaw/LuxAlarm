@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <include domain="root" path="." />
+        <include domain="database" path="alarm_database" />
+        <include domain="database" path="alarm_database-wal" />
+        <include domain="database" path="alarm_database-shm" />
+
+        <include domain="sharedpref" path="lux_alarm_settings.xml" />
+
+        <exclude domain="sharedpref" path="alarm_state.xml" />
     </cloud-backup>
     <device-transfer>
-        <include domain="root" path="." />
+        <include domain="database" path="alarm_database" />
+        <include domain="database" path="alarm_database-wal" />
+        <include domain="database" path="alarm_database-shm" />
+
+        <include domain="sharedpref" path="lux_alarm_settings.xml" />
+
+        <exclude domain="sharedpref" path="alarm_state.xml" />
     </device-transfer>
 </data-extraction-rules>
