@@ -23,28 +23,47 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.dsalmun.luxalarm.ui.theme.LuxAlarmTheme
 
 class MainActivity : ComponentActivity() {
+    private var showNotificationPermissionDialog by mutableStateOf(false)
+    private var showExactAlarmPermissionDialog by mutableStateOf(false)
+
     private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean
-            ->
-            // TODO: Handle notification permission result
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (!isGranted) {
+                showNotificationPermissionDialog = true
+                Toast.makeText(
+                        this,
+                        "Notifications are disabled. Alarm alerts may be less reliable.",
+                        Toast.LENGTH_LONG,
+                    )
+                    .show()
+            }
         }
 
     private val requestExactAlarmPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // Check if permission was granted after returning from settings
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (!AppContainer.repository.canScheduleExactAlarms()) {
-                // TODO: User didn't grant permission. Show a dialog explaining why it's needed
+                showExactAlarmPermissionDialog = true
+                Toast.makeText(
+                        this,
+                        "Exact alarm permission is required for alarms to ring on time.",
+                        Toast.LENGTH_LONG,
+                    )
+                    .show()
             }
         }
 
@@ -78,6 +97,32 @@ class MainActivity : ComponentActivity() {
                     SettingsScreen(onBackClick = { showSettings = false })
                 } else {
                     AlarmScreen(onSettingsClick = { showSettings = true })
+                }
+
+                if (showNotificationPermissionDialog) {
+                    PermissionExplanationDialog(
+                        title = "Allow notifications",
+                        message =
+                            "Lux Alarm uses notifications to display alarm alerts and foreground service status. You can enable notifications from the app settings.",
+                        onDismiss = { showNotificationPermissionDialog = false },
+                        onOpenSettings = {
+                            showNotificationPermissionDialog = false
+                            openAppNotificationSettings()
+                        },
+                    )
+                }
+
+                if (showExactAlarmPermissionDialog) {
+                    PermissionExplanationDialog(
+                        title = "Allow exact alarms",
+                        message =
+                            "Lux Alarm needs exact alarm access so alarms ring at the scheduled time. Without it, alarms may be delayed or not fire reliably.",
+                        onDismiss = { showExactAlarmPermissionDialog = false },
+                        onOpenSettings = {
+                            showExactAlarmPermissionDialog = false
+                            requestExactAlarmPermission()
+                        },
+                    )
                 }
             }
         }
@@ -121,4 +166,32 @@ class MainActivity : ComponentActivity() {
             requestExactAlarmPermissionLauncher.launch(intent)
         }
     }
+
+    private fun openAppNotificationSettings() {
+        val intent =
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+        startActivity(intent)
+    }
+}
+
+@Composable
+private fun PermissionExplanationDialog(
+    title: String,
+    message: String,
+    onDismiss: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Not now") }
+        },
+        confirmButton = {
+            TextButton(onClick = onOpenSettings) { Text("Open settings") }
+        },
+    )
 }
